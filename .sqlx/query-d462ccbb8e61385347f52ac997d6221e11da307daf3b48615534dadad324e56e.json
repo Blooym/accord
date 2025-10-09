@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM starred_messages WHERE starboard_message_id = ?1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "d462ccbb8e61385347f52ac997d6221e11da307daf3b48615534dadad324e56e"
+}

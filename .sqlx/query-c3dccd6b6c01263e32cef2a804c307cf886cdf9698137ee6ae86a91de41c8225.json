@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE starboards SET emoji = ?1 WHERE channel_id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "c3dccd6b6c01263e32cef2a804c307cf886cdf9698137ee6ae86a91de41c8225"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE starboards SET threshold = ?1 WHERE channel_id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "8306fff35082b2716c6a3a86e87ea7e62fb7e6718c3cfbc2e49fad0c009a23ef"
+}

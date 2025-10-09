@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM starboards WHERE channel_id = ?1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "a77628aacb0fd48facca2c2330010eb2a694097edfaa0bbc7594bb069d9fd15c"
+}

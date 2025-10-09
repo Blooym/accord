@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE starboards SET allow_selfstar = ?1 WHERE channel_id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "3d8d12860188cdea7efd6dc238973ae85edbe3ff5f5ff016f1918683ea437930"
+}

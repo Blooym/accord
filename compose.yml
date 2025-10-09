@@ -1,0 +1,11 @@
+services:
+  accord-bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUST_LOG: info
+    volumes:
+      - accord-data:/opt/accord/data
+volumes:
+  accord-data:
