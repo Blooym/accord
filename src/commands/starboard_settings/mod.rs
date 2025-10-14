@@ -18,8 +18,10 @@ use anyhow::Result;
     prefix_command,
     slash_command,
     hide_in_help,
-    default_member_permissions = "MANAGE_GUILD | MANAGE_CHANNELS",
-    required_bot_permissions = "MANAGE_CHANNELS | VIEW_CHANNEL | READ_MESSAGE_HISTORY | SEND_MESSAGES | EMBED_LINKS",
+    default_member_permissions = "MANAGE_CHANNELS",
+    required_bot_permissions = "VIEW_CHANNEL | SEND_MESSAGES | READ_MESSAGE_HISTORY |  EMBED_LINKS",
+    guild_cooldown = 5s,
+    subcommand_required,
     subcommands(
         "create_cmd",
         "delete_cmd",
