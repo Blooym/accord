@@ -10,7 +10,7 @@ CREATE TABLE starboards(
     threshold INTEGER NOT NULL,
     allow_selfstar BOOLEAN NOT NULL
 );
-CREATE INDEX idx_starboards_guild_id ON starboards(guild_id);
+CREATE INDEX idx_starboards_guild_emoji ON starboards(guild_id, emoji);
 
 CREATE TABLE starred_messages(
     starboard_message_id BIGINT NOT NULL PRIMARY KEY,
@@ -20,4 +20,3 @@ CREATE TABLE starred_messages(
     react_count INTEGER NOT NULL,
     UNIQUE (starboard_id, message_id)
 );
-CREATE INDEX idx_starred_messages_starboard_id ON starred_messages(starboard_id);
