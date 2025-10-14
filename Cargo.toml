@@ -7,14 +7,18 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.100"
-clap = { version = "4.5.48", features = ["derive", "env"] }
+clap = { version = "4.5.49", features = ["derive", "env"] }
 dotenvy = "0.15.7"
 emojis = "0.7.2"
 linkify = "0.10.0"
 poise = "0.6.1"
 serenity = "0.12.4"
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite"] }
-tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.47.1", features = [
+    "rt-multi-thread",
+    "macros",
+    "signal",
+] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 url = "2.5.7"

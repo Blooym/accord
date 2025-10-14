@@ -10,6 +10,7 @@ use dotenvy::dotenv;
 use poise::serenity_prelude::{
     ActivityData, ClientBuilder, CreateAllowedMentions, GatewayIntents, OnlineStatus,
 };
+use tokio::signal;
 use tracing_subscriber::EnvFilter;
 
 type PoiseContext<'a> = poise::Context<'a, AppState, Error>;
@@ -46,10 +47,10 @@ async fn main() -> Result<()> {
         .with_env_filter(EnvFilter::try_from_default_env().unwrap_or(EnvFilter::new("info")))
         .init();
     let args = AppSettings::parse();
+
     let database = Database::new(&args.database_url)
         .await
         .context("failed to initialise database")?;
-
     let framework = poise::Framework::<AppState, Error>::builder()
         .options(poise::FrameworkOptions {
             commands: vec![starboard_settings_sub()],
@@ -96,17 +97,46 @@ async fn main() -> Result<()> {
             })
         })
         .build();
-
-    // Start the bot.
-    ClientBuilder::new(
+    let mut client = ClientBuilder::new(
         args.discord_token,
         GatewayIntents::non_privileged()
             | GatewayIntents::GUILD_MESSAGE_REACTIONS
             | GatewayIntents::MESSAGE_CONTENT,
     )
     .framework(framework)
-    .await?
-    .start_autosharded()
-    .await
-    .context("Error while starting client")
+    .await?;
+
+    // Graceful shutdown.
+    let shard_manager = client.shard_manager.clone();
+    tokio::spawn(async move {
+        let ctrl_c = async {
+            signal::ctrl_c()
+                .await
+                .expect("failed to install Ctrl+C handler");
+        };
+
+        #[cfg(unix)]
+        let terminate = async {
+            signal::unix::signal(signal::unix::SignalKind::terminate())
+                .expect("failed to install signal handler")
+                .recv()
+                .await;
+        };
+
+        #[cfg(not(unix))]
+        let terminate = std::future::pending::<()>();
+
+        tokio::select! {
+            _ = ctrl_c => {},
+            _ = terminate => {},
+        }
+
+        shard_manager.shutdown_all().await;
+    });
+
+    // Start the bot.
+    client
+        .start_autosharded()
+        .await
+        .context("Error while starting client")
 }
