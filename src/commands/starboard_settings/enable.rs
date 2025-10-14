@@ -9,7 +9,7 @@ pub async fn enable_cmd(
     #[channel_types("Text")]
     #[description = "The starboard to configure"]
     starboard: Channel,
-    #[description = "Whether or not to enable the starboard"] enabled: bool,
+    #[description = "Whether to enable the starboard"] enabled: bool,
 ) -> Result<(), Error> {
     let channel_id = starboard.id().get().try_into()?;
     if !starboard_setup_in_channel(channel_id, ctx.data().database.pool()).await? {

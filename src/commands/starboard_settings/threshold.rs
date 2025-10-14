@@ -9,7 +9,7 @@ pub async fn threshold_cmd(
     #[channel_types("Text")]
     #[description = "The starboard to configure"]
     starboard: Channel,
-    #[description = "The amount of reactions needed to post in the starboard"] threshold: u32,
+    #[description = "The amount of reactions needed to post to the starboard"] threshold: u32,
 ) -> Result<(), Error> {
     let channel_id = starboard.id().get().try_into()?;
     if !starboard_setup_in_channel(channel_id, ctx.data().database.pool()).await? {

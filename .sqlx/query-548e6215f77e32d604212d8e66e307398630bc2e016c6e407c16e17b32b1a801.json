@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO starred_messages\n                (starboard_message_id, starboard_channel_id, original_message_id, original_message_author_id, original_message_channel_id, react_count) VALUES\n                (?1, ?2, ?3, ?4, ?5, ?6) \n                ON CONFLICT (starboard_channel_id, original_message_id) DO UPDATE\n                SET starboard_message_id = ?1, react_count = ?5",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "548e6215f77e32d604212d8e66e307398630bc2e016c6e407c16e17b32b1a801"
+}

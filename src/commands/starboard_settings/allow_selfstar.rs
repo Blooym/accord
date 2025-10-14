@@ -9,7 +9,7 @@ pub async fn allow_selfstar(
     #[channel_types("Text")]
     #[description = "The starboard to configure"]
     starboard: Channel,
-    #[description = "Allow users to 'star' their own messages"] allow_selfstar: bool,
+    #[description = "Count users reacting to their own messages"] allow_selfstar: bool,
 ) -> Result<(), Error> {
     let channel_id = starboard.id().get().try_into()?;
     if !starboard_setup_in_channel(channel_id, ctx.data().database.pool()).await? {

@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT starboard_channel_id, starboard_message_id FROM starred_messages WHERE original_message_id = ?1",
+  "describe": {
+    "columns": [
+      {
+        "name": "starboard_channel_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "starboard_message_id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "d474779ae58764c4c62a4b3eccea649ed70977475465fd646d35140699786fa4"
+}
