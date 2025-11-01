@@ -7,7 +7,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.100"
-clap = { version = "4.5.49", features = ["derive", "env"] }
+clap = { version = "4.5.51", features = ["derive", "env"] }
 dotenvy = "0.15.7"
 emojis = "0.7.2"
 linkify = "0.10.0"
