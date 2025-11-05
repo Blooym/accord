@@ -39,10 +39,18 @@ pub async fn create_cmd(
     query!("INSERT OR IGNORE INTO guilds (id) VALUES (?1)", guild_id)
         .execute(ctx.data().database.pool())
         .await?;
-    query!("INSERT INTO starboards (guild_id, enabled, channel_id, emoji, threshold, allow_selfstar) VALUES (?1, ?2, ?3, ?4, ?5, ?6)", 
-            guild_id, true, channel_id, emoji, threshold, allow_selfstar
-        )
-        .execute(ctx.data().database.pool()).await?;
+    query!(
+        "INSERT INTO starboards (guild_id, enabled, channel_id, emoji, threshold, allow_selfstar) 
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        guild_id,
+        true,
+        channel_id,
+        emoji,
+        threshold,
+        allow_selfstar
+    )
+    .execute(ctx.data().database.pool())
+    .await?;
 
     ctx.say(format!(
         "Successfully created starboard for <#{}>.",

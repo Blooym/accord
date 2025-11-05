@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT starboard_message_id FROM starred_messages WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
+  "query": "SELECT starboard_message_id FROM starred_messages\n            WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "6b2a1ba3a06365c3cc9b34c9bd85b27c4722dce0bb8a2cea14a3739bda3a7ac5"
+  "hash": "1b8d89e1cb3da6f53788b10bb5bb3c56ed38a2f44ee3607ca3f219ab47a6e7e7"
 }

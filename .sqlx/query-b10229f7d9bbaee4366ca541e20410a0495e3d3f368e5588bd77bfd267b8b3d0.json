@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT channel_id, enabled, emoji, allow_selfstar, threshold FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
+  "query": "SELECT channel_id, enabled, emoji, allow_selfstar, threshold\n        FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
   "describe": {
     "columns": [
       {
@@ -40,5 +40,5 @@
       false
     ]
   },
-  "hash": "6f8ac896e94a3b64db843c92313a46f4e925bee36ab00a86772f74d4bc878313"
+  "hash": "b10229f7d9bbaee4366ca541e20410a0495e3d3f368e5588bd77bfd267b8b3d0"
 }

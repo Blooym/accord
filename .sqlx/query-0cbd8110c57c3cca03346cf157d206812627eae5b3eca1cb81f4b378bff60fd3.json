@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO starboards (guild_id, enabled, channel_id, emoji, threshold, allow_selfstar) \n        VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "0cbd8110c57c3cca03346cf157d206812627eae5b3eca1cb81f4b378bff60fd3"
+}

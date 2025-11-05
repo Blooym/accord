@@ -43,7 +43,8 @@ pub async fn starboard_process_react_add(
 
     // Find applicable starboards for the event.
     let starboards = query!(
-        "SELECT channel_id, enabled, emoji, allow_selfstar, threshold FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
+        "SELECT channel_id, enabled, emoji, allow_selfstar, threshold 
+        FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
         guild_id,
         emoji
     )
@@ -112,38 +113,66 @@ pub async fn starboard_process_react_add(
         // Try find existing starboard message.
         let starboard_channel = ChannelId::new(starboard.channel_id.try_into()?);
         let starboard_message = match query!(
-            "SELECT starboard_message_id FROM starred_messages WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
+            "SELECT starboard_message_id FROM starred_messages
+            WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
             starboard.channel_id,
             message_id
         )
         .fetch_optional(data.database.pool())
         .await?
-        { Some(starboard_message) => {
-            // Found, edit or re-send message.
-            match starboard_channel
-                .message(
-                    &ctx.http,
-                    MessageId::from(u64::try_from(starboard_message.starboard_message_id)?),
-                )
-                .await
-            {
-                Ok(mut message) => {
-                    // Edit existing message.
-                    message
-                        .edit(&ctx.http, EditMessage::new().content(message_parts.content).embed(message_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS))
-                        .await?;
-                    message
-                }
-                Err(err) => {
-                    // Create new message.
-                    warn!("Caught error when fetching existing starboard message, making new message: {err:?}");
-                   starboard_channel.send_message(&ctx.http, CreateMessage::new().content(message_parts.content).embed(message_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS)).await?
+        {
+            Some(starboard_message) => {
+                // Found, edit or re-send message.
+                match starboard_channel
+                    .message(
+                        &ctx.http,
+                        MessageId::from(u64::try_from(starboard_message.starboard_message_id)?),
+                    )
+                    .await
+                {
+                    Ok(mut message) => {
+                        // Edit existing message.
+                        message
+                            .edit(
+                                &ctx.http,
+                                EditMessage::new()
+                                    .content(message_parts.content)
+                                    .embed(message_parts.embed)
+                                    .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                            )
+                            .await?;
+                        message
+                    }
+                    Err(err) => {
+                        // Create new message.
+                        warn!(
+                            "Caught error when fetching existing starboard message, making new message: {err:?}"
+                        );
+                        starboard_channel
+                            .send_message(
+                                &ctx.http,
+                                CreateMessage::new()
+                                    .content(message_parts.content)
+                                    .embed(message_parts.embed)
+                                    .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                            )
+                            .await?
+                    }
                 }
             }
-        } _ => {
-            // Not found, send new message.
-            starboard_channel.send_message(&ctx.http, CreateMessage::new().content(message_parts.content).embed(message_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS)).await?
-        }};
+            _ => {
+                // Not found, send new message.
+                starboard_channel
+                    .send_message(
+                        &ctx.http,
+                        CreateMessage::new()
+                            .content(message_parts.content)
+                            .embed(message_parts.embed)
+                            .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                    )
+                    .await?
+            }
+        };
 
         // Add/update the entry in the database.
         let message_author_id: i64 = message.author.id.get().try_into()?;

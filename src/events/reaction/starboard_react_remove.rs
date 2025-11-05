@@ -42,7 +42,8 @@ pub async fn starboard_process_react_remove(
 
     // Find applicable starboards for the event.
     let starboards = query!(
-        "SELECT channel_id, enabled, emoji, allow_selfstar, threshold FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
+        "SELECT channel_id, enabled, emoji, allow_selfstar, threshold
+        FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
         guild_id,
         emoji
     )
@@ -101,63 +102,92 @@ pub async fn starboard_process_react_remove(
         // Try find existing starboard message.
         let starboard_channel = ChannelId::new(starboard.channel_id.try_into()?);
         let starboard_message = match query!(
-            "SELECT starboard_message_id FROM starred_messages WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
+            "SELECT starboard_message_id FROM starred_messages
+            WHERE starboard_channel_id = ?1 AND original_message_id = ?2",
             starboard.channel_id,
             message_id
         )
         .fetch_optional(data.database.pool())
         .await?
-        { Some(starboard_message) => {
-            match starboard_channel
-                .message(
-                    &ctx.http,
-                    MessageId::from(u64::try_from(starboard_message.starboard_message_id)?),
-                )
-                .await
-            {
-                Ok(mut message) => {
-                    // If under threshold, delete existing message.
-                    if react_count < starboard.threshold {
-                        message.delete(&ctx.http).await?;
-                        query!("DELETE FROM starred_messages WHERE starboard_message_id = ?1", starboard_message.starboard_message_id)
-                            .execute(data.database.pool()).await?;
-                        return Ok(());
+        {
+            Some(starboard_message) => {
+                match starboard_channel
+                    .message(
+                        &ctx.http,
+                        MessageId::from(u64::try_from(starboard_message.starboard_message_id)?),
+                    )
+                    .await
+                {
+                    Ok(mut message) => {
+                        // If under threshold, delete existing message.
+                        if react_count < starboard.threshold {
+                            message.delete(&ctx.http).await?;
+                            query!(
+                                "DELETE FROM starred_messages WHERE starboard_message_id = ?1",
+                                starboard_message.starboard_message_id
+                            )
+                            .execute(data.database.pool())
+                            .await?;
+                            return Ok(());
+                        }
+                        // Otherwise update it with the new reactors_count.
+                        message
+                            .edit(
+                                &ctx.http,
+                                EditMessage::new()
+                                    .content(msg_parts.content)
+                                    .embed(msg_parts.embed)
+                                    .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                            )
+                            .await?;
+                        message
                     }
-                    // Otherwise update it with the new reactors_count.
-                    message
-                        .edit(&ctx.http, EditMessage::new().content(msg_parts.content).embed(msg_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS))
-                        .await?;
-                    message
-                }
-                Err(err) => {
-                    // If under threshold, delete the broken record instead of recreating the message.
-                    if react_count < starboard.threshold {
-                        query!("DELETE FROM starred_messages WHERE starboard_message_id = ?1", starboard_message.starboard_message_id)
-                            .execute(data.database.pool()).await?;
-                        return Ok(());
-                    }
+                    Err(err) => {
+                        // If under threshold, delete the broken record instead of recreating the message.
+                        if react_count < starboard.threshold {
+                            query!(
+                                "DELETE FROM starred_messages WHERE starboard_message_id = ?1",
+                                starboard_message.starboard_message_id
+                            )
+                            .execute(data.database.pool())
+                            .await?;
+                            return Ok(());
+                        }
 
-                    // Otherwise recreate the message.
-                    warn!("Caught error when fetching existing starboard message, making new message: {err:?}");
-                    starboard_channel
-                        .send_message(&ctx.http, CreateMessage::new().content(msg_parts.content).embed(msg_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS))
-                        .await?
+                        // Otherwise recreate the message.
+                        warn!(
+                            "Caught error when fetching existing starboard message, making new message: {err:?}"
+                        );
+                        starboard_channel
+                            .send_message(
+                                &ctx.http,
+                                CreateMessage::new()
+                                    .content(msg_parts.content)
+                                    .embed(msg_parts.embed)
+                                    .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                            )
+                            .await?
+                    }
                 }
             }
-        } _ => {
-            // Check if the message should be posted.
-            if react_count < starboard.threshold {
-                return Ok(());
-            }
+            _ => {
+                // Check if the message should be posted.
+                if react_count < starboard.threshold {
+                    return Ok(());
+                }
 
-            // Send the message to the starboard.
-            starboard_channel
-                .send_message(
-                    &ctx.http,
-                    CreateMessage::new().content(msg_parts.content).embed(msg_parts.embed).flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
-                )
-                .await?
-        }};
+                // Send the message to the starboard.
+                starboard_channel
+                    .send_message(
+                        &ctx.http,
+                        CreateMessage::new()
+                            .content(msg_parts.content)
+                            .embed(msg_parts.embed)
+                            .flags(MessageFlags::SUPPRESS_NOTIFICATIONS),
+                    )
+                    .await?
+            }
+        };
 
         // Add/update the entry in the database.
         let message_author_id: i64 = message.author.id.get().try_into()?;

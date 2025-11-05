@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT channel_id, enabled, emoji, allow_selfstar, threshold \n        FROM starboards WHERE guild_id = ?1 AND emoji = ?2",
+  "describe": {
+    "columns": [
+      {
+        "name": "channel_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "enabled",
+        "ordinal": 1,
+        "type_info": "Bool"
+      },
+      {
+        "name": "emoji",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "allow_selfstar",
+        "ordinal": 3,
+        "type_info": "Bool"
+      },
+      {
+        "name": "threshold",
+        "ordinal": 4,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "496f551e7c8b7dc22d271fffe9645987ba10e9187aa0702ba256371a53a8ad07"
+}
