@@ -107,13 +107,13 @@ fn make_starboard_embed(
             )
         };
     }
-    // Add the first attachment as an image or add a field with all attachments.
+    // Embed the first image URL found in the message content.
     else if let Some(link) =
         find_all_image_urls_in_str(&message.content).and_then(|links| links.into_iter().next())
     {
         embed = embed.image(link.to_string());
     }
-    // Embed the first image link in the message.
+    // Embed the first image from an embed on the message.
     else if let Some(image_url) = message
         .embeds
         .iter()
@@ -124,12 +124,17 @@ fn make_starboard_embed(
 
     // Add reply context
     if let Some(reply) = &message.referenced_message {
-        const MAX_REPLY_LENGTH: usize = 524;
+        const MAX_REPLY_CHARS: usize = 524;
 
         let reply_content = if reply.content.is_empty() {
             "*sent an attachment, embed or sticker.*".to_string()
-        } else if reply.content.len() > MAX_REPLY_LENGTH {
-            format!("{}...", &reply.content[..MAX_REPLY_LENGTH])
+        } else if reply.content.chars().count() > MAX_REPLY_CHARS {
+            reply
+                .content
+                .chars()
+                .take(MAX_REPLY_CHARS)
+                .chain("...".chars())
+                .collect::<String>()
         } else {
             reply.content.clone()
         };
@@ -165,24 +170,24 @@ fn find_all_image_urls_in_str(s: &str) -> Option<Vec<Url>> {
         return None;
     }
 
-    Some(
-        links
-            .iter()
-            .filter_map(|link| {
-                let link_str = link.as_str().to_lowercase();
-                if link_str.is_empty() {
-                    return None;
-                }
+    let image_urls: Vec<Url> = links
+        .iter()
+        .filter_map(|link| {
+            let link_str = link.as_str().to_lowercase();
+            if !link_str.contains(".jpg")
+                && !link_str.contains(".jpeg")
+                && !link_str.contains(".png")
+                && !link_str.contains(".gif")
+            {
+                return None;
+            }
+            Url::parse(link.as_str()).ok()
+        })
+        .collect();
 
-                if !link_str.contains(".jpg")
-                    && !link_str.contains(".jpeg")
-                    && !link_str.contains(".png")
-                    && !link_str.contains(".gif")
-                {
-                    return None;
-                }
-                Url::parse(link.as_str()).ok()
-            })
-            .collect(),
-    )
+    if image_urls.is_empty() {
+        None
+    } else {
+        Some(image_urls)
+    }
 }

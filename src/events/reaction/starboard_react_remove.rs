@@ -16,8 +16,8 @@ pub async fn starboard_process_react_remove(
     reaction: &Reaction,
 ) -> Result<()> {
     // Events that do not occur in guilds are ignored.
-    let guild_id: i64 = match reaction.guild_id.map(|g| g.get().try_into().unwrap()) {
-        Some(guild_id) => guild_id,
+    let guild_id: i64 = match reaction.guild_id {
+        Some(g) => g.get().try_into()?,
         None => return Ok(()),
     };
 
@@ -61,7 +61,7 @@ pub async fn starboard_process_react_remove(
                 starboard_channel_id = %starboard.channel_id,
                 "skip react - starboard not enabled",
             );
-            return Ok(());
+            continue;
         }
 
         // Ignore all events inside of the starboard channel.
@@ -71,7 +71,7 @@ pub async fn starboard_process_react_remove(
                 starboard_channel_id = %starboard.channel_id,
                 "skip react - inside of starboard channel",
             );
-            return Ok(());
+            continue;
         }
 
         // Ignore people reacting to their own message unless it's allowed.
@@ -81,7 +81,7 @@ pub async fn starboard_process_react_remove(
                 starboard_channel_id = %starboard.channel_id,
                 "skip react - selfstar when not enabled",
             );
-            return Ok(());
+            continue;
         }
 
         // Get a list of users that reacted to the message.
@@ -128,7 +128,7 @@ pub async fn starboard_process_react_remove(
                             )
                             .execute(data.database.pool())
                             .await?;
-                            return Ok(());
+                            continue;
                         }
                         // Otherwise update it with the new reactors_count.
                         message
@@ -151,7 +151,7 @@ pub async fn starboard_process_react_remove(
                             )
                             .execute(data.database.pool())
                             .await?;
-                            return Ok(());
+                            continue;
                         }
 
                         // Otherwise recreate the message.
@@ -173,7 +173,7 @@ pub async fn starboard_process_react_remove(
             _ => {
                 // Check if the message should be posted.
                 if react_count < starboard.threshold {
-                    return Ok(());
+                    continue;
                 }
 
                 // Send the message to the starboard.
@@ -198,7 +198,7 @@ pub async fn starboard_process_react_remove(
                 (starboard_message_id, starboard_channel_id, original_message_id, original_message_author_id, original_message_channel_id, react_count) VALUES
                 (?1, ?2, ?3, ?4, ?5, ?6) 
                 ON CONFLICT (starboard_channel_id, original_message_id) DO UPDATE
-                SET starboard_message_id = ?1, react_count = ?5",
+                SET starboard_message_id = ?1, react_count = ?6",
             starboard_message_id,
             starboard.channel_id,
             message_id,

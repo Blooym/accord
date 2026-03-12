@@ -15,9 +15,12 @@ pub async fn create_cmd(
     #[description = "The emoji to use for as the 'star'"] emoji: String,
     #[description = "Count users reacting to their own messages"] allow_selfstar: Option<bool>,
 ) -> Result<(), Error> {
-    let Some(guild_id): Option<i64> = ctx.guild_id().map(|g| g.get().try_into().unwrap()) else {
-        ctx.say("This command can only be used in a guild.").await?;
-        return Ok(());
+    let guild_id: i64 = match ctx.guild_id() {
+        Some(g) => g.get().try_into()?,
+        None => {
+            ctx.say("This command can only be used in a guild.").await?;
+            return Ok(());
+        }
     };
 
     // Ensure the given emoji is valid.

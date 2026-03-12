@@ -24,11 +24,11 @@ struct AppState {
 struct AppSettings {
     /// The local database URL to use for persistent storage.
     #[clap(long = "database-url", env = "DATABASE_URL")]
-    database_url: String,
+    database_url: Box<str>,
 
     /// The Discord bot token to authenticate with.
     #[clap(long = "discord-token", env = "ACCORD_DISCORD_TOKEN")]
-    discord_token: String,
+    discord_token: Box<str>,
 
     /// The guild to register commands for testing.
     #[cfg(debug_assertions)]
@@ -37,7 +37,7 @@ struct AppSettings {
 
     /// The custom status to use for the bot's profile
     #[clap(long = "discord-bot-status", env = "ACCORD_DISCORD_BOT_STATUS")]
-    discord_bot_status: Option<String>,
+    discord_bot_status: Option<Box<str>>,
 }
 
 #[tokio::main]
