@@ -3,6 +3,7 @@ use ::serenity::all::{ChannelId, MessageId};
 use anyhow::{Error, Result};
 use poise::serenity_prelude as serenity;
 use sqlx::query;
+use tracing::warn;
 
 pub async fn starboard_process_react_remove_all(
     ctx: &serenity::Context,
@@ -20,13 +21,20 @@ pub async fn starboard_process_react_remove_all(
     .await?;
 
     for message_starboard_entry in starboard_entries_for_message {
-        ctx.http
+        if let Err(err) = ctx
+            .http
             .delete_message(
                 ChannelId::new(message_starboard_entry.starboard_channel_id.try_into()?),
                 MessageId::new(message_starboard_entry.starboard_message_id.try_into()?),
                 None,
             )
-            .await?;
+            .await
+        {
+            warn!(
+                starboard_message_id = message_starboard_entry.starboard_message_id,
+                "Failed to delete starboard message on reaction remove all: {err:?}"
+            );
+        }
         query!(
             "DELETE FROM starred_messages WHERE starboard_message_id = ?1",
             message_starboard_entry.starboard_message_id
