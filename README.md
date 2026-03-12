@@ -5,7 +5,7 @@
 >
 > No support will be offered for this software. Breaking changes to functionalty or features may be made any time.
 
-A simple multi-server starboard discord application.
+A simple multi-server starboard Discord application.
 
 ## Setup
 
@@ -43,7 +43,6 @@ accord
 ## Configuration
 
 Accord is configured via command-line flags or environment variables and has full support for loading from `.env` files. Below is a list of all supported configuration options. You can also run `accord --help` to get an up-to-date including default values.
-
 
 | Name                 | Description                                                    | Flag                                            | Env                         | Default |
 | -------------------- | -------------------------------------------------------------- | ----------------------------------------------- | --------------------------- | ------- |
